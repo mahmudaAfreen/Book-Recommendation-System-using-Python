@@ -1,2 +1,2 @@
 # Book-Recommendation-System-using-Python
-Using ML, its all about books recommendation system.
+It's a Machine Learning project that will cover the basic idea of a recommendation system. 
