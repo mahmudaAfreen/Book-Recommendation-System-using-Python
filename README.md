@@ -28,3 +28,10 @@ books_df = pd.read_csv('books.csv')
 # Load the ratings data
 ratings_df = pd.read_csv('ratings.csv')
 ```
+#### Explore the dataset
+
+```python
+books_df.head(2)
+ratings_df.head(2)
+books_df.info()
+```
