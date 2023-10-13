@@ -51,7 +51,11 @@ plt.title('Top 10 Most Rated Books')
 plt.gca().invert_yaxis()
 plt.tight_layout()
 plt.show()
+```
+<img width="930" alt="Screenshot 2023-10-14 015736" src="https://github.com/mahmudaAfreen/Book-Recommendation-System-using-Python/assets/36468927/c2e37477-2837-4169-a318-b36ba48fb58a">
 
+
+```python
 # Distribution of Book Ratings
 import matplotlib.pyplot as plt
 
@@ -84,6 +88,5 @@ plt.gca().set_position([0, 0, 0.5, 1])  # Adjust the position of the pie chart
 plt.gca().text(0.1, 0.1, 'Total\n' + str(rating_sum.sum()), ha='center', va='center', fontsize=14, fontweight='bold')
 
 plt.show()
-
-<img width="527" alt="Screenshot 2023-10-14 015524" src="https://github.com/mahmudaAfreen/Book-Recommendation-System-using-Python/assets/36468927/3ae70098-3b14-4772-bbea-166b332f2295">
 ```
+<img width="527" alt="Screenshot 2023-10-14 015524" src="https://github.com/mahmudaAfreen/Book-Recommendation-System-using-Python/assets/36468927/3ae70098-3b14-4772-bbea-166b332f2295">
