@@ -34,4 +34,54 @@ ratings_df = pd.read_csv('ratings.csv')
 books_df.head(2)
 ratings_df.head(2)
 books_df.info()
+books_df.describe()
+```
+## Data Visualization
+```python
+import matplotlib.pyplot as plt
+
+# Count top 10 books
+top_rated_books = ratings_df['book_id'].value_counts().head(10)
+top_rated_books = books_df.merge(top_rated_books, left_on='book_id', right_index=True)
+plt.figure(figsize=(15, 4))
+plt.barh(top_rated_books['title'], top_rated_books['book_id'], color='skyblue')
+plt.xlabel('Number of Ratings')
+plt.ylabel('Book Title')
+plt.title('Top 10 Most Rated Books')
+plt.gca().invert_yaxis()
+plt.tight_layout()
+plt.show()
+
+# Distribution of Book Ratings
+import matplotlib.pyplot as plt
+
+# Rename the column labels
+rating_counts = books_df.rename(columns={'ratings_1': 'Rating 1', 'ratings_2': 'Rating 2',
+                                         'ratings_3': 'Rating 3', 'ratings_4': 'Rating 4',
+                                         'ratings_5': 'Rating 5'})
+
+# Count the number of books for each rating
+rating_sum = rating_counts[['Rating 1', 'Rating 2', 'Rating 3', 'Rating 4', 'Rating 5']].sum()
+
+# Define custom colors for each rating category
+colors = ['#E74C3C', '#F39C12', '#F1C40F', '#27AE60', '#3498DB']
+
+# Create pie chart with smaller size
+plt.figure(figsize=(15, 10))
+
+# Plot the pie chart
+plt.pie(rating_sum, labels=rating_sum.index, autopct='%1.1f%%', startangle=90, colors=colors,
+        textprops={'color': 'black', 'fontsize': 12})
+
+# Set equal aspect ratio to ensure circular shape
+plt.axis('equal')
+
+# Add a title to the chart
+plt.title('Distribution of Book Ratings', fontsize=16, fontweight='bold')
+
+# Move the percentage labels inside the pie slices
+plt.gca().set_position([0, 0, 0.5, 1])  # Adjust the position of the pie chart
+plt.gca().text(0.1, 0.1, 'Total\n' + str(rating_sum.sum()), ha='center', va='center', fontsize=14, fontweight='bold')
+
+plt.show()
 ```
