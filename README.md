@@ -17,3 +17,14 @@ import csv
 import warnings
 warnings.filterwarnings('ignore')
 ```
+
+## Introduction of the Data
+This goodbooks-10k dataset(https://github.com/zygmuntz/goodbooks-10k) contains almost 6 million ratings of 10 thousand popular books.As of the record every book have more eor less 100 reviews. The book IDs range from 1 to 10,000, while the user IDs range from 1 to 53,424. All users in the system have provided a minimum of two ratings, ensuring a comprehensive dataset. The median number of ratings per user is eight, indicating a sufficient amount of user feedback for accurate recommendation generation. 
+
+```python
+# Load the books data
+books_df = pd.read_csv('books.csv')
+
+# Load the ratings data
+ratings_df = pd.read_csv('ratings.csv')
+```
