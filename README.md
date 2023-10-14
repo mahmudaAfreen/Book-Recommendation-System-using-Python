@@ -238,16 +238,7 @@ for b in book_ids_for_H[1:]:
     print(get_title(b))
 ```
 ##### Output
-To Kill a Mockingbird
-Memoirs of a Geisha
-Nineteen Eighty-Four
-The Great Gatsby
- The Fellowship of the Ring
-Lord of the Flies 
-Harry Potter and the Prisoner of Azkaban
-The Hobbit or There and Back Again
-Het Achterhuis: Dagboekbrieven 14 juni 1942 - 1 augustus 1944
-Jane Eyre
+<img width="326" alt="Screenshot 2023-10-14 015736" src="https://github.com/mahmudaAfreen/Book-Recommendation-System-using-Python/assets/36468927/d8f6a2cc-fde0-4e95-a2e4-80bbfd65dc1f">
 
 
 ## K-fold cross-validation to evaluate the performance of a recommendation system
