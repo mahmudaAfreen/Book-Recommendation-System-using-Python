@@ -127,6 +127,11 @@ df = merged_df[['id','original_title', 'user_id', 'rating']]
 df = df.rename(columns = {'id':'book_id'})
 df.head(2)
 ```
+##### Output
+
+book_id	original_title	user_id	rating
+0	1	The Hunger Games	314	5
+1	1	The Hunger Games	439	3
 
 ####  To create the pivot table and filling missing values with zeros, the code organizes the data in a matrix-like format, where the rows represent books, the columns represent users, and the values represent ratings.
 
@@ -224,6 +229,128 @@ book_ids_for_H = get_recomm('Harry Potter and the Philosopher\'s Stone', num_nei
 for b in book_ids_for_H[1:]:
     print(get_title(b))
 ```
+##### Output
+To Kill a Mockingbird
+Memoirs of a Geisha
+Nineteen Eighty-Four
+The Great Gatsby
+ The Fellowship of the Ring
+Lord of the Flies 
+Harry Potter and the Prisoner of Azkaban
+The Hobbit or There and Back Again
+Het Achterhuis: Dagboekbrieven 14 juni 1942 - 1 augustus 1944
+Jane Eyre
+
+
+## K-fold cross-validation to evaluate the performance of a recommendation system
+The results of the evaluation show the RMSE and MAE values for each fold, indicating the accuracy of the predicted ratings compared to the actual ratings. These metrics provide valuable insights into the model's performance across different subsets of the dataset. By employing K-fold cross-validation, the evaluation accounts for both training and validation sets, ensuring a robust assessment of the model's predictive capabilities. This approach helps in determining the model's effectiveness in predicting ratings and allows for comparisons between different models or parameter settings.
+
+[Reference](https://www.analyticsvidhya.com/blog/2022/02/k-fold-cross-validation-technique-and-its-essentials/)
+
+```python
+import numpy as np
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+from sklearn.model_selection import KFold
+
+def calculate_fold(data, k):
+    fold_indices = []
+    kf = KFold(n_splits=k, shuffle=True)
+
+    for train_index, val_index in kf.split(data):
+        fold_indices.append((train_index, val_index))
+
+    return fold_indices
+
+def calculate_metrics(actual_ratings, predicted_ratings):
+    rmse = np.sqrt(mean_squared_error(actual_ratings, predicted_ratings))
+    mae = mean_absolute_error(actual_ratings, predicted_ratings)
+    return rmse, mae
+
+# Example usage
+actual_ratings = [4, 3, 5, 2, 4]
+predicted_ratings = [3.8, 2.5, 4.3, 1.8, 4.1]
+k = 5
+
+fold_indices = calculate_fold(actual_ratings, k)
+
+for fold, (train_index, val_index) in enumerate(fold_indices):
+    print("Fold", fold + 1)
+    print("Training indices:", train_index)
+    print("Validation indices:", val_index)
+
+    train_actual = [actual_ratings[i] for i in train_index]
+    train_predicted = [predicted_ratings[i] for i in train_index]
+    val_actual = [actual_ratings[i] for i in val_index]
+    val_predicted = [predicted_ratings[i] for i in val_index]
+
+    rmse, mae = calculate_metrics(val_actual, val_predicted)
+    print("RMSE:", rmse)
+    print("MAE:", mae)
+    print()
+```
+
+##### Output
+Fold 1
+Training indices: [0 1 2 3]
+Validation indices: [4]
+RMSE: 0.09999999999999964
+MAE: 0.09999999999999964
+
+Fold 2
+Training indices: [0 1 2 4]
+Validation indices: [3]
+RMSE: 0.19999999999999996
+MAE: 0.19999999999999996
+
+Fold 3
+Training indices: [0 2 3 4]
+Validation indices: [1]
+RMSE: 0.5
+MAE: 0.5
+
+Fold 4
+Training indices: [0 1 3 4]
+Validation indices: [2]
+RMSE: 0.7000000000000002
+MAE: 0.7000000000000002
+
+Fold 5
+...
+Validation indices: [0]
+RMSE: 0.20000000000000018
+MAE: 0.20000000000000018
+
+## Using Matrix Factorization
+Matrix factorization is a technique that is commonly used in recommendation systems to predict the ratings that users will give to items. These matrices can then be used to make predictions about how a user will rate an item by taking the dot product of the user and item vectors.
+In my work i will use Non-Negative Matrix Factorization (NMF) and Singular Value Decomposition(SVD)
+
+```python
+# an example of the correaltion between the books '1776' and 'The Fellowship of the Ring'
+book1776=bookratings['1776']
+bookratings[[" The Fellowship of the Ring","1776"]].corr()
+```
+```python
+# show books with most correlation
+bookratings.corrwith(book1776).sort_values(ascending=False).to_frame('corr')
+```
+```python
+# show books with least correlation
+bookratings.corrwith(book1776).sort_values(ascending=True).to_frame('corr').dropna()
+```
+```python
+# show a sample of random 15 books and see their correlation
+bookratings.corrwith(book1776).to_frame('corr').dropna().sample(15)
+```
 ```python
 
 ```
+```python
+
+```
+```python
+
+```
+```python
+
+```
+
