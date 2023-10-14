@@ -193,7 +193,7 @@ def get_recomm(book_title, num_neighbors=10, display=False):
 recommendations_for_TheHungerGames = get_recomm('The Hunger Games', num_neighbors=10, display=True)
 ```
 ##### Output
-```python
+
 Recommendations for  The Hunger Games 
 
 1	 Book ID: 17	  Distance: 0.4053256862294832:
@@ -215,7 +215,7 @@ Recommendations for  The Hunger Games
 9	 Book ID: 9	  Distance: 0.5271915645842881:
 
 10	 Book ID: 37	  Distance: 0.5278079122055651:
-```
+
 ```python
 # Top 10 recommendations for Harry Potter and the Philosopher's Stone
 
