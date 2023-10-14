@@ -17,7 +17,14 @@ import csv
 import warnings
 warnings.filterwarnings('ignore')
 from scipy.sparse import csr_matrix
+from sklearn.decomposition import NMF
+from scipy.sparse import csr_matrix
 from sklearn.neighbors import NearestNeighbors
+from sklearn.model_selection import train_test_split
+from sklearn.decomposition import TruncatedSVD
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+from sklearn.model_selection import KFold
+from sklearn.model_selection import train_test_split
 ```
 
 ## Introduction of the Data
@@ -128,10 +135,7 @@ df = df.rename(columns = {'id':'book_id'})
 df.head(2)
 ```
 ##### Output
-
-book_id	original_title	user_id	rating
-0	1	The Hunger Games	314	5
-1	1	The Hunger Games	439	3
+<img width="216" alt="Screenshot 2023-10-14 015736" src="https://github.com/mahmudaAfreen/Book-Recommendation-System-using-Python/assets/36468927/017a98be-24aa-4842-b28c-fa8731db74c0">
 
 ####  To create the pivot table and filling missing values with zeros, the code organizes the data in a matrix-like format, where the rows represent books, the columns represent users, and the values represent ratings.
 
@@ -141,6 +145,10 @@ ratings_df = df.pivot_table(index='book_id',columns='user_id',values='rating').f
 pd.set_option('display.max_columns', 100)
 ratings_df.head()
 ```
+##### Output
+
+<img width="1208" alt="Screenshot 2023-10-14 015736" src="https://github.com/mahmudaAfreen/Book-Recommendation-System-using-Python/assets/36468927/540303bb-66bf-48af-9ead-646bf72d732c">
+
 ```python
 ratings_df.shape
 ```
@@ -248,10 +256,6 @@ The results of the evaluation show the RMSE and MAE values for each fold, indica
 [Reference](https://www.analyticsvidhya.com/blog/2022/02/k-fold-cross-validation-technique-and-its-essentials/)
 
 ```python
-import numpy as np
-from sklearn.metrics import mean_squared_error, mean_absolute_error
-from sklearn.model_selection import KFold
-
 def calculate_fold(data, k):
     fold_indices = []
     kf = KFold(n_splits=k, shuffle=True)
@@ -329,28 +333,183 @@ In my work i will use Non-Negative Matrix Factorization (NMF) and Singular Value
 book1776=bookratings['1776']
 bookratings[[" The Fellowship of the Ring","1776"]].corr()
 ```
+##### Output
+<img width="286" alt="Screenshot 2023-10-14 015736" src="https://github.com/mahmudaAfreen/Book-Recommendation-System-using-Python/assets/36468927/da2c2743-2e77-4c2c-a0b1-f2fecd850cf5">
+
 ```python
 # show books with most correlation
 bookratings.corrwith(book1776).sort_values(ascending=False).to_frame('corr')
 ```
+##### Output
+<img width="439" alt="Screenshot 2023-10-14 015736" src="https://github.com/mahmudaAfreen/Book-Recommendation-System-using-Python/assets/36468927/a6d2c3c3-b7ed-4505-a006-271152783d82">
+
 ```python
 # show books with least correlation
 bookratings.corrwith(book1776).sort_values(ascending=True).to_frame('corr').dropna()
 ```
+##### Output
+<img width="145" alt="Screenshot 2023-10-14 015736" src="https://github.com/mahmudaAfreen/Book-Recommendation-System-using-Python/assets/36468927/eb935226-d133-4dbb-a5cf-625421e944c1">
+
 ```python
 # show a sample of random 15 books and see their correlation
 bookratings.corrwith(book1776).to_frame('corr').dropna().sample(15)
 ```
-```python
+##### Output
+<img width="364" alt="Screenshot 2023-10-14 015736" src="https://github.com/mahmudaAfreen/Book-Recommendation-System-using-Python/assets/36468927/bd7a3c07-f310-4703-a716-e4d8a3e36ab9">
 
-```
-```python
 
-```
-```python
+## Non-Negative Matrix Factorization (NMF)
+Non-Negative Matrix Factorization (NMF) to perform matrix factorization and generate personalized book recommendations for users.NMF is applied to factorize the ratings matrix into user and item features, revealing latent preferences. The recommend_books function takes a user ID and provides top book recommendations based on predicted ratings. By calculating the dot product between user and item features, the code generates personalized recommendations. The example usage showcases recommendations for user ID 1. NMF. This approach allows for the discovery of latent user preferences and provides users with tailored suggestions, enhancing their book discovery and reading experience.
 
-```
 ```python
+# Perform matrix factorization using Non-Negative Matrix Factorization (NMF)
+model = NMF(n_components=10, random_state=42)
+user_features = model.fit_transform(ratings_matrix)
+item_features = model.components_
 
+# Define a function to recommend books for a given user
+def recommend_books(user_id, num_recommendations=5):
+    user_index = pivot_df.index.get_loc(user_id)
+    user_ratings = ratings_matrix[user_index, :]
+
+    # Calculate the predicted ratings
+    predicted_ratings = np.dot(user_features[user_index, :], item_features)
+
+    # Get the indices of the top recommended books
+    top_books_indices = np.argsort(predicted_ratings)[::-1][:num_recommendations]
+
+    # Get the corresponding book IDs
+    top_books_ids = pivot_df.columns[top_books_indices]
+
+    # Get the book information from the books dataset
+    recommended_books = books_df[books_df['book_id'].isin(top_books_ids)][['book_id', 'original_title']]
+
+    return recommended_books
+
+# Example usage
+user_id = 1
+recommended_books = recommend_books(user_id)
+print(f"Recommended books for user {user_id}:")
+print(recommended_books)
 ```
+##### Output
+<img width="211" alt="Screenshot 2023-10-14 015736" src="https://github.com/mahmudaAfreen/Book-Recommendation-System-using-Python/assets/36468927/cfa4b8c4-a6fe-4824-a77e-3231997732c0">
+
+```python
+import numpy as np
+import pandas as pd
+from scipy.sparse import csr_matrix
+from sklearn.decomposition import NMF
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+
+# Load the ratings data into a DataFrame (example)
+ratings_data = pd.DataFrame({
+    'user_id': [1, 1, 2, 2, 3, 3],
+    'book_id': [1, 2, 1, 3, 2, 3],
+    'rating': [5, 4, 3, 2, 1, 5]
+})
+
+# Create a pivot table of ratings
+pivot_df = ratings_data.pivot(index='user_id', columns='book_id', values='rating').fillna(0)
+ratings_matrix = csr_matrix(pivot_df.values)
+
+# Perform matrix factorization using Non-Negative Matrix Factorization (NMF)
+model = NMF(n_components=10, random_state=42)
+user_features = model.fit_transform(ratings_matrix)
+item_features = model.components_
+
+# Define a function to recommend books for a given user
+def recommend_books(user_id, num_recommendations=5):
+    user_index = pivot_df.index.get_loc(user_id)
+    user_ratings = ratings_matrix[user_index, :]
+
+    # Calculate the predicted ratings
+    predicted_ratings = np.dot(user_features[user_index, :], item_features)
+
+    # Get the indices of the top recommended books
+    top_books_indices = np.argsort(predicted_ratings)[::-1][:num_recommendations]
+
+    # Get the corresponding book IDs
+    top_books_ids = pivot_df.columns[top_books_indices]
+
+    return top_books_ids
+
+# Example usage
+user_id = 1
+recommended_books = recommend_books(user_id)
+
+# Get the actual ratings for the user
+user_index = pivot_df.index.get_loc(user_id)
+actual_ratings = ratings_matrix[user_index, :].toarray().flatten()
+
+# Calculate the predicted ratings
+predicted_ratings = np.dot(user_features[user_index, :], item_features)
+
+# Remove any NaN values in the actual and predicted ratings
+actual_ratings = actual_ratings[~np.isnan(actual_ratings).astype(bool)]
+predicted_ratings = predicted_ratings[~np.isnan(predicted_ratings).astype(bool)]
+
+# Calculate RMSE
+rmse = np.sqrt(mean_squared_error(actual_ratings, predicted_ratings))
+
+# Calculate MAE
+mae = mean_absolute_error(actual_ratings, predicted_ratings)
+
+print(f"Recommended books for user {user_id}:")
+print(recommended_books)
+print(f"RMSE: {rmse}")
+print(f"MAE: {mae}")
+```
+##### Output
+<img width="250" alt="Screenshot 2023-10-14 015736" src="https://github.com/mahmudaAfreen/Book-Recommendation-System-using-Python/assets/36468927/97d1c06c-3352-4118-9f86-cb23e10da318">
+
+## Using Singular Value Decomposition(SVD)
+The provided code implements TruncatedSVD for collaborative book recommendations. It splits the data into training and testing sets, creates a user-item matrix, and applies matrix factorization to uncover latent features. The code then demonstrates how to generate personalized recommendations for a specific user based on the predicted ratings. The recommendations are sorted and displayed. TruncatedSVD enables the system to capture underlying patterns and user preferences, providing tailored book suggestions. This approach enhances the recommendation system's ability to deliver personalized recommendations, improving the user experience and promoting book discovery.
+```python
+# Define the path to your ratings.csv file
+ratings_file_path = 'ratings.csv'
+
+# Define the path to your books.csv file
+books_file_path = 'books.csv'
+
+# Load the ratings dataset
+ratings_df = pd.read_csv(ratings_file_path)
+
+# Split the data into training and test sets
+train_data, test_data = train_test_split(ratings_df, test_size=0.2, random_state=42)
+
+# Create the user-item matrix
+pivot_df = train_data.pivot(index='user_id', columns='book_id', values='rating').fillna(0)
+
+# Apply truncated SVD to factorize the user-item matrix
+svd = TruncatedSVD(n_components=10, random_state=42)
+user_features = svd.fit_transform(pivot_df.values)
+item_features = svd.components_
+
+# Example usage: Recommend books for a specific user
+user_id = 1
+
+# Get the index of the user in the user-item matrix
+user_index = pivot_df.index.get_loc(user_id)
+
+# Calculate predicted ratings for the user
+predicted_ratings = np.dot(user_features[user_index, :], item_features)
+
+# Sort the predicted ratings in descending order
+top_books_indices = np.argsort(predicted_ratings)[::-1]
+
+# Get the corresponding book IDs
+top_books_ids = pivot_df.columns[top_books_indices]
+
+# Print the top recommended books
+num_recommendations = 5
+top_recommendations = top_books_ids[:num_recommendations]
+
+print(f"Top {num_recommendations} recommended books for user {user_id}:")
+for book_id in top_recommendations:
+    print(f"Book ID: {book_id}")
+```
+##### Output
+<img width="214" alt="Screenshot 2023-10-14 015736" src="https://github.com/mahmudaAfreen/Book-Recommendation-System-using-Python/assets/36468927/badfb54a-9c62-44d7-a91d-b9b467196a20">
+
 
