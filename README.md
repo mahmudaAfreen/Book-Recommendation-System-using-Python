@@ -16,6 +16,8 @@ import matplotlib.pyplot as plt
 import csv
 import warnings
 warnings.filterwarnings('ignore')
+from scipy.sparse import csr_matrix
+from sklearn.neighbors import NearestNeighbors
 ```
 
 ## Introduction of the Data
@@ -96,3 +98,100 @@ plt.show()
 The collaborative recommendation system is a type of filtering system that suggests items or content to users based on their past behaviors and preferences, as well as the behaviors and preferences of other similar users.This system relies on the assumption that users with similar tastes and preferences in the past will have similar tastes and preferences in the future.
 As of k-nearest neighbor (KNN) based recommender system is a type of collaborative filtering system that uses the ratings given by users to other items to make recommendations. The system works by calculating the similarity between each pair of items, and then using the similarities to predict how a user will rate a given item.
 [Reference-1](https://www.aurigait.com/blog/recommendation-system-using-knn/) [Reference-2](https://www.itm-conferences.org/articles/itmconf/abs/2017/04/itmconf_ita2017_04008/itmconf_ita2017_04008.html)
+
+## What I have done here
+In the above part i have used KNN algorithm to perform a collaborative recommended system and i have used RMSE and MAE to measure the performance of the algorithm. The core functionality is encapsulated within a function called "get_recomm". This function accepts a book title, the number of neighbors to consider, and a display flag as parameters.It retrieves the index of the queried book in the ratings_df pivot table, using a hypothetical get_book_id function. The KNN model is then queried to obtain the distances and indices of the nearest neighbors for the queried book.By iterating through the distances and indices of the nearest neighbors, the function retrieves the recommended book IDs. If the display flag is set to True, it prints the recommendations, including the book ID and the corresponding distance.
+
+#### Create a copy of the origina dataset 
+
+```python
+books = books_df.copy()
+ratings = ratings_df.copy()
+```
+
+#### To clean and preprocess the data by removing missing values and duplicate entries, ensuring the data frames are ready for further analysis or modeling tasks.
+
+```python
+books = books.dropna()
+ratings = ratings.sort_values("user_id")
+ratings.drop_duplicates(subset=["user_id","book_id"], keep='first', inplace=True) 
+books.drop_duplicates(subset='original_title', keep='first', inplace=True)
+```
+
+#### To prepares a new data frame "df" that contains relevant information for further analysis.
+
+```python
+merged_df = pd.merge(books, ratings, how='left', left_on=['id'], right_on=['book_id'])
+df = merged_df[['id','original_title', 'user_id', 'rating']]
+
+df = df.rename(columns = {'id':'book_id'})
+df.head(2)
+```
+
+####  To create the pivot table and filling missing values with zeros, the code organizes the data in a matrix-like format, where the rows represent books, the columns represent users, and the values represent ratings.
+
+```python
+ratings_df = df.pivot_table(index='book_id',columns='user_id',values='rating').fillna(0)
+
+pd.set_option('display.max_columns', 100)
+ratings_df.head()
+```
+```python
+ratings_df.shape
+```
+```python
+ratings_matrix = csr_matrix(ratings_df.values)
+```
+```python
+model_knn = NearestNeighbors(metric='cosine', algorithm = 'brute')
+model_knn.fit(ratings_matrix)
+```
+
+#### Helper Function
+```python
+def get_book_id(book_title):
+    target_df = df.loc[df['original_title'] == book_title]
+    return target_df['book_id'].iloc[0]
+
+id_TheHungerGames = get_book_id('The Hunger Games')
+print(id_TheHungerGames)
+```
+
+```python
+def get_title(book_id):
+    target_df = df.loc[df['book_id'] == book_id]
+    return target_df['original_title'].iloc[0]
+
+print(get_title(1))
+```
+
+```python
+def get_recomm(book_title, num_neighbors=10, display=False): 
+    book_ids = []
+    
+    query_index = get_book_id(book_title) - 1
+    
+    if num_neighbors > 0:
+        distances, indices = model_knn.kneighbors(ratings_df.iloc[query_index,:].values.reshape(1, -1), n_neighbors = num_neighbors + 1)
+    else:
+        distances, indices = model_knn.kneighbors(ratings_df.iloc[query_index,:].values.reshape(1, -1), n_neighbors = 10 + 1)
+    
+    for i in range(0, len(distances.flatten())):
+        if display is True:
+            if i == 0:
+                print('Recommendations for ', book_title, '\n')
+            else:    
+                print('{0}\t Book ID: {1}\t  Distance: {2}:\n'.format(i, ratings_df.index[indices.flatten()[i]], distances.flatten()[i]))
+        
+        book_ids.append(ratings_df.index[indices.flatten()[i]])
+    
+    return book_ids
+```
+
+#### Test the Result
+```python
+recommendations_for_TheHungerGames = get_recomm('The Hunger Games', num_neighbors=10, display=True)
+```
+```python
+
+```
