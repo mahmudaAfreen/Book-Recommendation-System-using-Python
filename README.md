@@ -95,4 +95,4 @@ plt.show()
 
 The collaborative recommendation system is a type of filtering system that suggests items or content to users based on their past behaviors and preferences, as well as the behaviors and preferences of other similar users.This system relies on the assumption that users with similar tastes and preferences in the past will have similar tastes and preferences in the future.
 As of k-nearest neighbor (KNN) based recommender system is a type of collaborative filtering system that uses the ratings given by users to other items to make recommendations. The system works by calculating the similarity between each pair of items, and then using the similarities to predict how a user will rate a given item.
-[Reference](https://www.aurigait.com/blog/recommendation-system-using-knn/, https://www.itm-conferences.org/articles/itmconf/abs/2017/04/itmconf_ita2017_04008/itmconf_ita2017_04008.html)
+[Reference-1](https://www.aurigait.com/blog/recommendation-system-using-knn/) [Reference-2](https://www.itm-conferences.org/articles/itmconf/abs/2017/04/itmconf_ita2017_04008/itmconf_ita2017_04008.html)
